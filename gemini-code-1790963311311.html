@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Emissão e envio de documentos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#f5f7fa;
+  --card:#ffffff;
+  --ink:#172b4d;
+  --mute:#667085;
+  --line:#e4e7ec;
+  --accent:#1d4ed8;
+  --accent-dark:#1e3a8a;
+  --accent-soft:#eff6ff;
+  --ok:#15803d;
+  --okbg:#ecfdf3;
+  --late:#dc2626;
+  --latebg:#fef2f2;
+  --today:#d97706;
+  --todaybg:#fffbeb;
+  --emit:#2563eb;
+  --emitbg:#eff6ff;
+  --send:#7c3aed;
+  --sendbg:#f5f3ff;
+  --rem:#b45309;
+  --rembg:#fffbeb;
+  --remmid:#fef3c7;
+  --remsolid:#f59e0b;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:15px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body:before{
+  content:"";
+  display:block;
+  height:5px;
+  background:linear-gradient(90deg,var(--accent-dark),var(--accent),#60a5fa);
+}
+main{
+  max-width:980px;
+  margin:0 auto;
+  padding:34px 24px 70px;
+}
+h1{
+  font-size:1.85rem;
+  letter-spacing:-.03em;
+  margin:0;
+  font-weight:700;
+}
+.sub{
+  color:var(--mute);
+  margin:5px 0 22px;
+  max-width:760px;
+}
+.pal{display:none}
+.month{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 2px 8px rgba(16,24,40,.04);
+}
+.month strong{
+  font-size:1.1rem;
+  text-transform:capitalize;
+  font-weight:700;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+.nav{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:10px;
+  width:42px;
+  height:42px;
+  font-size:1.25rem;
+  transition:.15s;
+}
+.nav:hover{background:var(--accent-soft);border-color:#bfdbfe;color:var(--accent)}
+.count{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin:16px 0;
+}
+.count div{
+  min-width:0;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:15px;
+  box-shadow:0 2px 8px rgba(16,24,40,.035);
+  border-top:3px solid var(--line);
+}
+.count b{display:block;font-size:1.8rem;line-height:1.1;margin-bottom:5px}
+.count span{
+  color:var(--mute);
+  font-size:.84rem;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.count .ico,.chk .ico{width:16px;height:16px;color:var(--accent)}
+.count .k-emit{border-top-color:var(--emit);background:linear-gradient(180deg,#fff,var(--emitbg))}
+.count .k-send{border-top-color:var(--send);background:linear-gradient(180deg,#fff,var(--sendbg))}
+.count .k-late{border-top-color:var(--late);background:linear-gradient(180deg,#fff,var(--latebg))}
+.count .k-done{border-top-color:var(--ok);background:linear-gradient(180deg,#fff,var(--okbg))}
+.count .k-rem{border-top-color:var(--remsolid);background:linear-gradient(180deg,#fff,var(--rembg))}
+.count .k-rem.alert{background:var(--remmid)}
+.count .k-rem b,.count .k-rem .ico{color:var(--rem)}
+.count .k-emit b,.count .k-emit .ico{color:var(--emit)}
+.count .k-send b,.count .k-send .ico{color:var(--send)}
+.count .k-late b,.count .k-late .ico{color:var(--late)}
+.count .k-done b,.count .k-done .ico{color:var(--ok)}
+.count .k-late.alert{background:var(--latebg)}
+.count .k-late.alert span{color:var(--ink)}
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:10px;
+}
+.tab,.chip{
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:9px;
+  padding:8px 14px;
+  font-size:.88rem;
+  font-weight:600;
+  color:#475467;
+  transition:.15s;
+}
+.tab:hover,.chip:hover{border-color:#b9c4d0;background:#f8fafc}
+.tab[aria-pressed="true"],.chip[aria-pressed="true"]{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+  box-shadow:0 2px 5px rgba(29,78,216,.18);
+}
+.tabs[role="group"]{
+  margin-bottom:18px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+
+ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+li{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px 14px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-left:4px solid var(--line);
+  border-radius:12px;
+  padding:13px 15px;
+  box-shadow:0 1px 4px rgba(16,24,40,.025);
+  transition:.15s;
+}
+li:hover{box-shadow:0 4px 12px rgba(16,24,40,.06)}
+li.emit{border-left-color:var(--emit)}
+li.send{border-left-color:var(--send)}
+li.today{border-left-color:var(--today);background:var(--todaybg)}
+li.late{border-color:#fecaca;background:var(--latebg)}
+li.done{border-left-color:var(--ok);opacity:.78}
+.chk{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.9rem;
+  color:var(--ink);
+  cursor:pointer;
+  padding:5px 0;
+  font-weight:600;
+}
+.chk input{width:19px;height:19px}
+.c-emit input{accent-color:var(--emit)}
+.c-send input{accent-color:var(--ok)}
+.chk.c-emit .ico{color:var(--emit)}
+.chk.c-send .ico{color:var(--ok)}
+.checks{
+  flex-basis:100%;
+  display:flex;
+  gap:20px;
+  align-items:center;
+  border-top:1px solid #eef0f3;
+  padding-top:7px;
+}
+.info{flex:1 1 250px;min-width:0}
+.info b{display:flex;align-items:center;gap:8px;font-size:.96rem}
+.info b span{min-width:0;overflow-wrap:anywhere}
+.ico{flex:none;width:18px;height:18px;color:var(--accent)}
+.info small{
+  color:var(--mute);
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:3px;
+  font-size:.8rem;
+}
+.info small span{min-width:0;overflow-wrap:anywhere}
+.info small .ico{width:15px;height:15px;color:#98a2b3}
+.tag{
+  font-size:.75rem;
+  font-weight:700;
+  border-radius:999px;
+  padding:4px 9px;
+  white-space:nowrap;
+}
+.late .tag{background:var(--late);color:#fff}
+.today .tag{background:var(--today);color:#fff}
+.done .tag{background:var(--okbg);color:var(--ok)}
+.emit .tag{background:var(--emitbg);color:var(--emit)}
+.send .tag{background:var(--sendbg);color:var(--send)}
+.del{
+  border:0;
+  background:transparent;
+  color:#98a2b3;
+  font-size:1rem;
+  width:32px;
+  height:32px;
+  border-radius:7px;
+}
+.del:hover{background:#f2f4f7;color:var(--late)}
+.empty{
+  background:var(--card);
+  border:1px dashed #cfd6df;
+  border-radius:12px;
+  padding:28px 22px;
+  text-align:center;
+  color:var(--mute);
+}
+h2{
+  font-size:1.05rem;
+  margin:32px 0 11px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+h2:before{
+  content:"";
+  width:4px;
+  height:20px;
+  border-radius:4px;
+  background:var(--accent);
+}
+.h-tax:before{background:var(--emit)}
+.h-rem:before{background:var(--remsolid)}
+
+form{
+  display:grid;
+  gap:11px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:17px;
+  box-shadow:0 2px 8px rgba(16,24,40,.035);
+}
+#form{border-top:3px solid var(--emit)}
+#remform{border-top:3px solid var(--remsolid)}
+label{
+  display:grid;
+  gap:5px;
+  font-size:.82rem;
+  color:#475467;
+  font-weight:600;
+}
+input[type=text],input[type=number],input[type=date],select{
+  font:inherit;
+  padding:10px 11px;
+  border:1px solid #d0d5dd;
+  border-radius:9px;
+  background:#fff;
+  color:var(--ink);
+  width:100%;
+  transition:.15s;
+}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,select:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(29,78,216,.1);
+}
+#remform input:focus{border-color:var(--remsolid);box-shadow:0 0 0 3px rgba(245,158,11,.1)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.add{
+  background:var(--accent);
+  color:#fff;
+  border:0;
+  border-radius:9px;
+  padding:11px 14px;
+  font-weight:700;
+  transition:.15s;
+}
+.add:hover{background:var(--accent-dark);transform:translateY(-1px)}
+#remform .add{background:var(--remsolid);color:#2b2000}
+#remform .add:hover{background:#d97706}
+.trow{
+  display:grid;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:13px;
+  background:#fafbfc;
+}
+.rm{
+  justify-self:end;
+  border:0;
+  background:transparent;
+  color:var(--mute);
+  text-decoration:underline;
+  padding:0;
+  font-size:.82rem;
+}
+.more{
+  border:1px dashed #93c5fd;
+  background:var(--accent-soft);
+  border-radius:9px;
+  padding:10px;
+  color:var(--emit);
+  font-weight:700;
+}
+li.rem{border-color:#fde68a;border-left-color:var(--remsolid);background:var(--rembg)}
+.rem .tag{background:var(--remmid);color:var(--rem)}
+.rem .info b .ico{color:var(--rem)}
+.rem .c-send input{accent-color:var(--remsolid)}
+li.r-soon .tag{background:var(--remsolid);color:#2b2000}
+li.r-late{border-left-color:var(--rem);background:var(--remmid)}
+li.r-late .tag{background:var(--rem);color:#fff}
+li.r-done{opacity:.75}
+
+.dfields{display:grid;gap:10px}
+.dfield{
+  display:grid;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:11px;
+  background:#fff;
+}
+.dl{font-size:.82rem;color:#667085;font-weight:700}
+.drow{display:grid;grid-template-columns:1fr 105px;gap:8px}
+.drow [hidden]{display:none}
+.drow .d-aj{grid-column:1/-1}
+.d-prev{color:var(--mute);font-size:.78rem}
+.d-prev.err{color:var(--late);font-weight:700}
+.edit{
+  margin-left:auto;
+  border:0;
+  background:transparent;
+  color:var(--accent);
+  text-decoration:none;
+  font-size:.82rem;
+  font-weight:600;
+  padding:6px 0;
+}
+.edit:hover{text-decoration:underline}
+.editor{
+  flex-basis:100%;
+  display:grid;
+  gap:10px;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+}
+.editor .acts{display:flex;gap:8px}
+.editor .acts button{
+  border-radius:8px;
+  padding:9px 13px;
+  border:1px solid var(--line);
+  background:#fff;
+}
+.editor .acts .save{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+  font-weight:700;
+}
+.custom{display:grid;gap:10px}
+.custom[hidden]{display:none}
+:focus-visible{outline:3px solid rgba(29,78,216,.3);outline-offset:2px}
+
+@media(max-width:760px){
+  main{padding:24px 14px 55px}
+  h1{font-size:1.55rem}
+  .count{grid-template-columns:repeat(2,1fr)}
+  .count div{padding:13px}
+}
+@media(max-width:480px){
+  .count{grid-template-columns:1fr 1fr;gap:8px}
+  .count b{font-size:1.5rem}
+  .count span{font-size:.78rem}
+  .checks{gap:13px}
+  .row{grid-template-columns:1fr}
+  .drow{grid-template-columns:1fr}
+  .drow .d-aj{grid-column:auto}
+}
+
+.mainnav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 20px}.navtab{border:0;background:transparent;padding:11px 16px;color:#667085;font-weight:700;border-bottom:3px solid transparent}.navtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}.section-title{margin:0;font-size:1.25rem}.section-sub{margin:3px 0;color:var(--mute);font-size:.86rem}
+.primary-btn{background:var(--accent);color:#fff;border:0;border-radius:9px;padding:10px 15px;font-weight:700;cursor:pointer}.secondary-btn{background:#fff;color:#475467;border:1px solid var(--line);border-radius:9px;padding:9px 14px;font-weight:600;cursor:pointer}
+.company-layout{display:grid;grid-template-columns:minmax(260px,.75fr) minmax(420px,1.25fr);gap:14px;align-items:start}.company-list-panel,.company-form-panel,.company-detail{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:0 2px 8px rgba(16,24,40,.035)}
+.company-list-panel>input{margin-bottom:10px}.company-card{padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}.company-card.selected{border-color:#93c5fd;background:var(--accent-soft)}.company-card strong,.company-card small{display:block}.company-card small{color:var(--mute);margin-top:3px}.regime-badge{display:inline-block;margin-top:7px;border-radius:999px;background:#eef2ff;color:#3730a3;padding:3px 8px;font-size:.7rem;font-weight:700}
+.form-title{padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)}.form-title strong,.form-title small{display:block}.form-title small{color:var(--mute);font-size:.78rem}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-grid .full{grid-column:1/-1}.form-grid textarea{font:inherit;border:1px solid #d0d5dd;border-radius:9px;padding:10px;resize:vertical}.form-actions{display:flex;gap:8px;margin-top:13px}
+.company-detail{margin-top:14px}.detail-head{display:flex;justify-content:space-between;gap:15px;align-items:center}.detail-label{font-size:.72rem;color:var(--mute);text-transform:uppercase;font-weight:700}.detail-head h2{margin:3px 0;font-size:1.15rem}.detail-head h2:before{display:none}.detail-head p{margin:0;color:var(--mute);font-size:.82rem}.detail-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:15px}.detail-card{border:1px solid var(--line);border-radius:10px;padding:11px;background:#fafbfc}.detail-card span{display:block;color:var(--mute);font-size:.7rem;font-weight:700;text-transform:uppercase}.detail-card strong{display:block;margin-top:3px;font-size:.86rem;overflow-wrap:anywhere}
+.monthly-toolbar{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:10px}.toolbar-label{display:block;font-size:.72rem;color:var(--mute);font-weight:700;text-transform:uppercase;margin-bottom:4px}.monthly-toolbar select{min-width:280px}.monthly-summary{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.summary-pill{padding:7px 10px;border-radius:8px;font-size:.76rem;font-weight:700;background:#f2f4f7;color:#475467}.summary-pill.ok{background:var(--okbg);color:var(--ok)}.summary-pill.warn{background:var(--todaybg);color:var(--today)}.summary-pill.danger{background:var(--latebg);color:var(--late)}
+@media(max-width:760px){.company-layout{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:auto}.detail-cards{grid-template-columns:1fr 1fr}.monthly-toolbar{align-items:stretch;flex-direction:column}.monthly-toolbar select{min-width:0}}
+@media(max-width:480px){.detail-head{align-items:flex-start;flex-direction:column}.detail-cards{grid-template-columns:1fr}}
+
+/* FICHA MENSAL */
+#obrigacoes{margin-top:28px}
+.filter-bar{display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin:18px 0}
+.filter-bar .field{min-width:210px}
+.summary-grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:12px;margin:16px 0}
+.summary-card{background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(20,35,55,.05)}
+.summary-card span{display:block;color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.summary-card strong{display:block;font-size:26px;margin-top:5px;color:#17324d}
+.company-monthly-header{display:flex;justify-content:space-between;align-items:center;gap:20px;background:#f5f8fb;border:1px solid #dfe7ef;border-radius:12px;padding:14px 18px;margin:16px 0}
+.company-monthly-header div:first-child{display:flex;flex-direction:column;gap:4px}
+.company-monthly-header span{font-size:12px;color:#64748b}
+.table-wrap{overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px}
+.obligation-table{width:100%;border-collapse:collapse;min-width:1000px}
+.obligation-table th,.obligation-table td{padding:12px 11px;border-bottom:1px solid #edf1f5;text-align:left;vertical-align:middle}
+.obligation-table th{background:#f8fafc;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.obligation-table td small{display:block;color:#7b8794;font-size:11px;margin-top:3px}
+.notes-cell{max-width:180px;color:#64748b;font-size:12px}
+.status-badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700;background:#eef2f7;color:#475569}
+.status-badge.pendente{background:#fff7e6;color:#a16207}
+.status-badge.emitido{background:#e8f1ff;color:#1d4ed8}
+.status-badge.enviado{background:#e8f7ef;color:#15803d}
+.status-badge.vencido{background:#feecec;color:#b91c1c}
+.actions-cell{white-space:nowrap}
+.mini-btn{border:1px solid #d7dee8;background:#fff;border-radius:7px;padding:6px 8px;margin-right:4px;cursor:pointer;font-size:11px}
+.mini-btn:hover{background:#f4f7fa}
+.mini-btn.danger{color:#b91c1c}
+.empty-state{text-align:center!important;padding:35px!important;color:#7b8794}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(15,23,42,.25)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;padding:20px 22px;border-bottom:1px solid #e5eaf0}
+.modal-head h3{margin:0;color:#17324d}
+.modal-head p{margin:5px 0 0;color:#718096;font-size:13px}
+.icon-btn{border:0;background:transparent;font-size:26px;cursor:pointer;color:#64748b}
+.modal form{padding:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field.full{grid-column:1/-1}
+.field label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;box-sizing:border-box;border:1px solid #d7dee8;border-radius:8px;padding:10px 11px;background:#fff;font:inherit;color:#243447}
+.field textarea{resize:vertical}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #edf1f5}
+.btn{border:0;border-radius:8px;padding:10px 15px;cursor:pointer;font-weight:700}
+.btn.primary{background:#1769aa;color:#fff}
+.btn.secondary{background:#edf2f7;color:#334155}
+@media(max-width:800px){
+  .summary-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .company-monthly-header{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Emissão e envio de documentos</h1>
+<div class="pal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<p class="sub">Marque cada item como emitido e depois enviado ao cliente. Sincronizado na nuvem para acesso em qualquer dispositivo.</p>
+
+<nav class="mainnav" aria-label="Navegação principal">
+<button class="navtab active" data-view="dashboard">Controle mensal</button>
+<button class="navtab" data-view="empresas">Empresas</button>
+</nav>
+
+<section id="view-empresas" class="view" hidden>
+<div class="section-head"><div><h2 class="section-title">Cadastro de empresas</h2><p class="section-sub">Dados cadastrais, regime tributário e informações de contato.</p></div><button type="button" class="primary-btn" id="novaEmpresa">+ Nova empresa</button></div>
+<div class="company-layout">
+<div class="company-list-panel"><input type="text" id="buscaEmpresa" placeholder="Buscar empresa, CNPJ ou regime..."><div id="companyList"></div></div>
+<div class="company-form-panel">
+<div class="form-title"><strong id="companyFormTitle">Nova empresa</strong><small>Dados cadastrais</small></div>
+<form id="companyForm">
+<input type="hidden" id="empresaId">
+<div class="form-grid">
+<label>Razão social<input type="text" id="razaoSocial" maxlength="120" required></label>
+<label>Nome fantasia<input type="text" id="nomeFantasia" maxlength="100"></label>
+<label>CNPJ<input type="text" id="cnpj" maxlength="18" placeholder="00.000.000/0000-00"></label>
+<label>Regime tributário<select id="regime"><option value="">Selecione...</option><option>Simples Nacional</option><option>Lucro Presumido</option><option>Lucro Real</option><option>MEI</option><option>Imune/Isenta</option><option>Produtor Rural</option><option>Outro</option></select></label>
+<label>Inscrição estadual<input type="text" id="ie"></label>
+<label>Inscrição municipal<input type="text" id="im"></label>
+<label>Responsável / contato<input type="text" id="responsavel"></label>
+<label>Telefone<input type="text" id="telefone"></label>
+<label class="full">E-mail<input type="email" id="email"></label>
+<label class="full">Observações<textarea id="observacoes" rows="3"></textarea></label>
+</div>
+<div class="form-actions"><button type="submit" class="primary-btn">Salvar empresa</button><button type="button" class="secondary-btn" id="cancelarEmpresa">Cancelar</button></div>
+</form></div></div>
+<div class="company-detail" id="companyDetail" hidden><div class="detail-head"><div><span class="detail-label">Empresa selecionada</span><h2 id="detailName"></h2><p id="detailMeta"></p></div><button type="button" class="secondary-btn" id="editarEmpresa">Editar cadastro</button></div><div class="detail-cards" id="detailCards"></div></div>
+</section>
+
+<section id="view-dashboard" class="view">
+<div class="monthly-toolbar"><div><span class="toolbar-label">Empresa</span><select id="empresaFilter"><option value="all">Todas as empresas</option></select></div><div class="monthly-summary" id="monthlySummary"></div></div><div class="month">
+  <button class="nav" id="prev" aria-label="Mês anterior">‹</button>
+  <strong id="mlabel"></strong>
+  <button class="nav" id="next" aria-label="Próximo mês">›</button>
+</div>
+
+<div class="count">
+  <div class="k-emit"><b id="cEmit">0</b><span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6"/><path d="M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v7H7z"/></svg>a emitir</span></div>
+  <div class="k-send"><b id="cSend">0</b><span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>a enviar</span></div>
+  <div class="k-late"><b id="cLate">0</b><span><svg class="ico i-late" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3L2 20h20z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".8"/></svg>atrasados</span></div>
+  <div class="k-done"><b id="cDone">0</b><span><svg class="ico i-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>enviados</span></div>
+  <div class="k-rem" hidden><b id="cRem">0</b><span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>lembretes</span></div>
+</div>
+
+<div class="tabs">
+  <button class="tab" data-f="pend" aria-pressed="true">Pendentes</button>
+  <button class="tab" data-f="all" aria-pressed="false">Todos</button>
+</div>
+<div class="tabs" role="group" aria-label="Filtrar por tipo">
+  <button class="chip" data-t="all" aria-pressed="true">Todos os tipos</button>
+  <button class="chip" data-t="imposto" aria-pressed="false">Impostos</button>
+  <button class="chip" data-t="declaracao" aria-pressed="false">Declarações</button>
+  <button class="chip" data-t="parcelamento" aria-pressed="false">Parcelamentos</button>
+</div>
+
+<ul id="list"></ul>
+
+<h2 class="h-rem">Lembretes</h2>
+<ul id="rem"></ul>
+</section>
+
+<h2 class="h-tax">Adicionar documentos de um cliente</h2>
+<form id="form">
+  <label>Cliente<input type="text" id="cliente" required list="clientes" maxlength="80" placeholder="Nome do cliente"></label>
+  <div id="taxes"></div>
+  <button class="more" type="button" id="more">+ Outro item deste cliente</button>
+  <button class="add" type="submit">Adicionar</button>
+</form>
+
+<h2 class="h-rem">Adicionar lembrete de um cliente</h2>
+<form id="remform">
+  <label>Cliente<input type="text" id="rcliente" required list="clientes" maxlength="80" placeholder="Nome do cliente"></label>
+  <label>Lembrete<input type="text" id="rtexto" required maxlength="140" placeholder="Ex.: pedir extrato bancário"></label>
+  <label>Data<input type="date" id="rdata" required></label>
+  <datalist id="clientes"></datalist>
+  <button class="add" type="submit">Adicionar lembrete</button>
+</form>
+
+<!-- FICHA MENSAL DETALHADA -->
+<section id="obrigacoes" class="page-section">
+  <div class="section-head">
+    <div>
+      <h2>Ficha mensal de obrigações</h2>
+      <p>Controle detalhado das obrigações fiscais por empresa e competência.</p>
+    </div>
+    <div class="section-actions">
+      <button class="btn primary" onclick="openObligationModal()">+ Nova obrigação</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="field">
+      <label>Empresa</label>
+      <select id="obCompanyFilter" onchange="renderObligations()"></select>
+    </div>
+    <div class="field">
+      <label>Competência</label>
+      <input id="obMonthFilter" type="month" onchange="renderObligations()">
+    </div>
+    <div class="field">
+      <label>Filtrar situação</label>
+      <select id="obStatusFilter" onchange="renderObligations()">
+        <option value="">Todas</option>
+        <option value="Pendente">Pendente</option>
+        <option value="Emitido">Emitido</option>
+        <option value="Enviado">Enviado</option>
+        <option value="Vencido">Vencido</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="summary-grid obligation-summary">
+    <div class="summary-card"><span>Total</span><strong id="obTotal">0</strong></div>
+    <div class="summary-card"><span>Pendentes</span><strong id="obPending">0</strong></div>
+    <div class="summary-card"><span>Emitidos</span><strong id="obIssued">0</strong></div>
+    <div class="summary-card"><span>Enviados</span><strong id="obSent">0</strong></div>
+    <div class="summary-card"><span>Vencidos</span><strong id="obLate">0</strong></div>
+  </div>
+
+  <div id="companyMonthlyHeader" class="company-monthly-header"></div>
+
+  <div class="table-wrap">
+    <table class="obligation-table">
+      <thead>
+        <tr>
+          <th>Obrigação</th>
+          <th>Competência</th>
+          <th>Vencimento</th>
+          <th>Emissão</th>
+          <th>Envio ao cliente</th>
+          <th>Situação</th>
+          <th>Observação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="obligationTableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<div id="obligationModal" class="modal-backdrop" onclick="if(event.target===this)closeObligationModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="obModalTitle">Nova obrigação</h3>
+        <p>Registre o andamento da obrigação fiscal.</p>
+      </div>
+      <button class="icon-btn" onclick="closeObligationModal()">×</button>
+    </div>
+    <form id="obligationForm" onsubmit="saveObligation(event)">
+      <input type="hidden" id="obId">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Empresa *</label>
+          <select id="obCompany" required></select>
+        </div>
+        <div class="field">
+          <label>Obrigação *</label>
+          <input id="obName" list="obligationTypes" required placeholder="Ex.: DCTFWeb">
+          <datalist id="obligationTypes">
+            <option value="DCTFWeb">
+            <option value="EFD-Reinf">
+            <option value="EFD ICMS/IPI">
+            <option value="EFD Contribuições">
+            <option value="PIS/COFINS">
+            <option value="PGDAS-D">
+            <option value="DEFIS">
+            <option value="DAS">
+            <option value="DCTF">
+            <option value="ECD">
+            <option value="ECF">
+            <option value="GIA">
+            <option value="DeSTDA">
+            <option value="ISS">
+            <option value="FGTS Digital">
+            <option value="INSS">
+            <option value="IRRF">
+            <option value="ICMS">
+            <option value="IPI">
+            <option value="Outro">
+          </datalist>
+        </div>
+        <div class="field">
+          <label>Competência *</label>
+          <input id="obCompetence" type="month" required>
+        </div>
+        <div class="field">
+          <label>Vencimento</label>
+          <input id="obDue" type="date">
+        </div>
+        <div class="field">
+          <label>Data de emissão</label>
+          <input id="obIssuedDate" type="date">
+        </div>
+        <div class="field">
+          <label>Data de envio</label>
+          <input id="obSentDate" type="date">
+        </div>
+        <div class="field">
+          <label>Situação</label>
+          <select id="obStatus">
+            <option>Pendente</option>
+            <option>Emitido</option>
+            <option>Enviado</option>
+            <option>Vencido</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Observação</label>
+          <textarea id="obNotes" rows="3" placeholder="Informações, protocolo, pendências ou observações..."></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" onclick="closeObligationModal()">Cancelar</button>
+        <button type="submit" class="btn primary">Salvar obrigação</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</main>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ===== CONFIGURAÇÃO DO FIREBASE =====
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyClOBCrGt5-NHNyKnc5SKj4JAE8zg1sXJU",
+  authDomain: "mgd-fiscal.firebaseapp.com",
+  databaseURL: "https://mgd-fiscal-default-rtdb.firebaseio.com",
+  projectId: "mgd-fiscal",
+  storageBucket: "mgd-fiscal.firebasestorage.app",
+  messagingSenderId: "524929076228",
+  appId: "1:524929076228:web:38966895e92b5b129d3951"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+} else {
+  console.warn("Firebase não configurado. O aplicativo está utilizando armazenamento local provisório.");
+}
+
+(function(){
+  var KEY="controle-impostos-v1";
+  var state={items:[],done:{},issued:{},lembretes:[],empresas:[],obrigacoes:[]};
+  
+  // Tenta carregar cache local enquanto sincroniza com a nuvem
+  try{var s=localStorage.getItem(KEY);if(s){var p=JSON.parse(s);if(p&&p.items)state=p;}}catch(e){}
+  state.done=state.done||{};state.issued=state.issued||{};state.lembretes=state.lembretes||[];state.empresas=state.empresas||[];state.obrigacoes=state.obrigacoes||[];
+
+  // Salva no banco em nuvem e mantém backup no localStorage
+  function save(){
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+    if (typeof db !== "undefined") {
+      db.collection("app_data").doc("main_state").set(state).catch(function(err){
+        console.error("Erro ao sincronizar na nuvem:", err);
+      });
+    }
+  }
+
+  // Sincronização em Tempo Real (Realtime Listener)
+  if (typeof db !== "undefined") {
+    db.collection("app_data").doc("main_state").onSnapshot(function(doc) {
+      if (doc.exists) {
+        var data = doc.data();
+        if (data) {
+          state = data;
+          state.done=state.done||{};state.issued=state.issued||{};state.lembretes=state.lembretes||[];state.empresas=state.empresas||[];state.obrigacoes=state.obrigacoes||[];
+          try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+          if (typeof render === "function") render();
+          if (typeof renderEmpresas === "function") renderEmpresas();
+          if (typeof renderObligations === "function") renderObligations();
+        }
+      }
+    });
+  }
+
+  window.appSave = save;
+  window.appState = state;
+
+  var now=new Date(),cur=new Date(now.getFullYear(),now.getMonth(),1),filter="pend";
+  var $=function(id){return document.getElementById(id)};
+  function mkey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+  function daysIn(d){return new Date(d.getFullYear(),d.getMonth()+1,0).getDate()}
+  function pad(n){return String(n).padStart(2,"0")}
+
+  var WD=["dom","seg","ter","qua","qui","sex","sáb"],
+      FIXOS=["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
+  function pascoa(y){
+    var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),
+        g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
+        l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+        mes=Math.floor((h+l-7*m+114)/31),dia=((h+l-7*m+114)%31)+1;
+    return new Date(y,mes-1,dia);
+  }
+  function ehUtil(dt){
+    var w=dt.getDay();if(w===0||w===6)return false;
+    if(FIXOS.indexOf(pad(dt.getMonth()+1)+"-"+pad(dt.getDate()))>-1)return false;
+    var p=pascoa(dt.getFullYear()),sx=new Date(p.getFullYear(),p.getMonth(),p.getDate()-2);
+    return !(dt.getMonth()===sx.getMonth()&&dt.getDate()===sx.getDate());
+  }
+  function ajusta(dt,aj){
+    if(aj==="man"||ehUtil(dt))return dt;
+    var st=aj==="ant"?-1:1,x=dt,i=0;
+    while(!ehUtil(x)&&i++<15)x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+st);
+    return x;
+  }
+  function resolveDate(r,y,m){
+    var nd=new Date(y,m+1,0).getDate(),dt,d,last=null,c=0;
+    if(r.t==="util"){
+      for(d=1;d<=nd;d++){dt=new Date(y,m,d);if(ehUtil(dt)){last=dt;if(++c===r.n)return dt}}
+      return last||new Date(y,m,nd);
+    }
+    if(r.t==="ultutil"){
+      for(d=nd;d>=1;d--){dt=new Date(y,m,d);if(ehUtil(dt))return dt}
+      return new Date(y,m,nd);
+    }
+    dt=new Date(y,m,r.t==="ultimo"?nd:Math.min(r.n,nd));
+    return ajusta(dt,r.aj||"man");
+  }
+  function ruleOf(it,k){
+    var r=k==="dia"?it.rdia:it.remissao;
+    if(r&&r.t)return r;
+    return{t:"dia",n:k==="dia"?it.dia:(it.emissao||it.dia),aj:"man"};
+  }
+  function describe(r){
+    var aj=r.aj==="ant"?" (antecipa se não for dia útil)":r.aj==="pos"?" (posterga se não for dia útil)":"";
+    if(r.t==="util")return r.n+"º dia útil";
+    if(r.t==="ultutil")return "último dia útil";
+    if(r.t==="ultimo")return "último dia do mês"+aj;
+    return "dia "+r.n+aj;
+  }
+  function fmtDia(dt){
+    return (dt.getMonth()===cur.getMonth()?"dia "+pad(dt.getDate()):pad(dt.getDate())+"/"+pad(dt.getMonth()+1))+" ("+WD[dt.getDay()]+")";
+  }
+
+  function mkDateField(label,rule,isVenc){
+    rule=rule||{t:"dia",n:null,aj:"man"};
+    var w=document.createElement("div");w.className="dfield";
+    w.innerHTML='<span class="dl'+(isVenc?' l-venc':'')+'"></span>'+
+      '<div class="drow"><select class="d-t"><option value="dia">Dia fixo do mês</option><option value="util">Dia útil do mês</option><option value="ultimo">Último dia do mês</option><option value="ultutil">Último dia útil</option></select>'+
+      '<input type="number" class="d-n" min="1" max="31" inputmode="numeric">'+
+      '<select class="d-aj"><option value="man">Manter se não for dia útil</option><option value="ant">Antecipar para o dia útil anterior</option><option value="pos">Postergar para o próximo dia útil</option></select></div>'+
+      '<small class="d-prev"></small>';
+    var sl=w.querySelector(".d-t"),n=w.querySelector(".d-n"),aj=w.querySelector(".d-aj"),pv=w.querySelector(".d-prev");
+    w.querySelector(".dl").textContent=label;
+    sl.setAttribute("aria-label",label+": regra");n.setAttribute("aria-label",label+": número");aj.setAttribute("aria-label",label+": se cair em dia não útil");
+    sl.value=rule.t;n.value=rule.n||"";aj.value=rule.aj||"man";
+    function get(){
+      var t=sl.value,r={t:t};
+      if(t==="dia"||t==="util"){
+        var v=parseInt(n.value,10);
+        if(!(v>=1&&v<=(t==="util"?23:31)))return null;
+        r.n=v;
+      }
+      r.aj=(t==="dia"||t==="ultimo")?aj.value:"man";
+      return r;
+    }
+    function upd(){
+      var t=sl.value;
+      n.hidden=(t==="ultimo"||t==="ultutil");n.required=!n.hidden;
+      n.max=t==="util"?23:31;n.placeholder=t==="util"?"Nº (ex.: 5)":"Dia (ex.: 20)";
+      aj.hidden=(t==="util"||t==="ultutil");
+      pv.classList.remove("err");
+      var r=get();
+      if(!r){pv.textContent="Preencha o número para ver a data.";return}
+      var dt=resolveDate(r,cur.getFullYear(),cur.getMonth());
+      pv.textContent="Em "+cur.toLocaleDateString("pt-BR",{month:"long"})+": "+dt.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"2-digit"})+(ehUtil(dt)?"":" · não é dia útil");
+    }
+    sl.onchange=upd;n.oninput=upd;aj.onchange=upd;upd();
+    return{el:w,get:get,err:function(){pv.textContent="Informe um número válido.";pv.classList.add("err");n.focus()}};
+  }
+
+  function status(it,iss,sent){
+    var t0=new Date(now.getFullYear(),now.getMonth(),now.getDate()),cy=cur.getFullYear(),cm=cur.getMonth();
+    function dd(dt){return Math.round((dt-t0)/86400000)}
+    function ago(n){return (-n)+(n===-1?" dia":" dias")}
+    if(sent)return{c:"done",t:"Enviado"};
+    if(iss){
+      var v=dd(resolveDate(ruleOf(it,"dia"),cy,cm));
+      if(v<0)return{c:"late",t:"Enviar: atrasado "+ago(v)};
+      if(v===0)return{c:"today",t:"Vence hoje"};
+      if(v<=3)return{c:"today",t:"Vence em "+v+(v===1?" dia":" dias")};
+      return{c:"send",t:"Emitido, falta enviar"};
+    }
+    var ed=resolveDate(ruleOf(it,"emissao"),cy,cm),d=dd(ed);
+    if(d<0)return{c:"late",t:"Emitir: atrasado "+ago(d)};
+    if(d===0)return{c:"today",t:"Emitir hoje"};
+    if(d<=3)return{c:"today",t:"Emitir em "+d+(d===1?" dia":" dias")};
+    return{c:"emit",t:"Emitir "+fmtDia(ed)};
+  }
+
+  var BELL='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span></span>';
+  var TIPOS={
+    imposto:{n:"Imposto",ph:"Ex.: DAS",list:"sug",venc:"Dia do vencimento",ico:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9.5 17.5l5-5"/><circle cx="10" cy="13" r=".8"/><circle cx="14" cy="17" r=".8"/>'},
+    declaracao:{n:"Declaração",ph:"Ex.: DCTF",list:"sugdec",venc:"Dia do prazo de entrega",ico:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 14l2 2 4-4"/>'},
+    parcelamento:{n:"Parcelamento",ph:"Ex.: Simples Nacional",list:"sugpar",venc:"Dia de vencimento da parcela",ico:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h3M8 17h3M14 14h2"/>'}
+  };
+  var DOCS={"imposto": ["DAS (Simples Nacional)", "DAS-MEI", "IRPJ", "CSLL", "PIS", "COFINS", "PIS/COFINS", "IPI", "IRRF (imposto retido na fonte)", "CSRF (PIS/COFINS/CSLL retidos)", "INSS (via DCTFWeb)", "FGTS Digital", "CPRB (contribuição sobre receita bruta)", "ICMS", "ICMS-ST (substituição tributária)", "DIFAL (ICMS)", "ISS", "ISS retido", "ITR"], "declaracao": ["PGDAS-D (apuração do Simples Nacional)", "DEFIS", "DASN-SIMEI", "DCTF", "DCTFWeb", "EFD-Contribuições", "EFD ICMS/IPI (SPED Fiscal)", "ECD (SPED Contábil)", "ECF", "EFD-Reinf", "eSocial", "DeSTDA", "GIA (ICMS estadual)", "GIA-ST", "DMS (serviços, municipal)", "DMED", "DIMOB", "DITR", "IRPF (pessoa física)", "Informe de rendimentos", "Balancete mensal", "Balanço patrimonial e DRE", "Livro Caixa", "LCDPR (produtor rural)", "DCBE (capitais no exterior, Banco Central)"], "parcelamento": ["Simples Nacional (parcelamento)", "Parcelamento MEI", "Receita Federal (parcelamento ordinário)", "Parcelamento previdenciário (INSS)", "PGFN (dívida ativa)", "PGFN (transação tributária)", "Parcelamento FGTS", "ICMS estadual", "ISS municipal", "Parcelamento especial (Refis/PERT)"]};
+  var GRUPOS={imposto:"Impostos e guias",declaracao:"Declarações e entregas",parcelamento:"Parcelamentos"};
+  var DOC_OPTS='<option value="">Escolha o documento…</option>'+Object.keys(DOCS).map(function(k){
+    return '<optgroup label="'+GRUPOS[k]+'">'+DOCS[k].map(function(n){return '<option value="'+k+'|'+n+'">'+n+'</option>'}).join("")+'</optgroup>';
+  }).join("")+'<option value="__outro">Outro (digitar)</option>';
+  function tipoOf(it){return TIPOS[it.tipo]||TIPOS.imposto}
+  var tipoFilter="all";
+  
+  var selectedEmpresaId=null;
+  function empresaPorNome(n){return state.empresas.find(function(e){return e.razaoSocial===n||e.nomeFantasia===n})}
+  function renderEmpresaFilter(){var s=$("empresaFilter");if(!s)return;var v=s.value;s.innerHTML='<option value="all">Todas as empresas</option>';state.empresas.slice().sort(function(a,b){return a.razaoSocial.localeCompare(b.razaoSocial)}).forEach(function(e){var o=document.createElement("option");o.value=e.id;o.textContent=e.razaoSocial;s.appendChild(o)});if([...s.options].some(function(o){return o.value===v}))s.value=v}
+  function renderEmpresas(){var q=($("buscaEmpresa").value||"").toLowerCase().trim(),ul=$("companyList");ul.innerHTML="";var a=state.empresas.filter(function(e){return !q||[e.razaoSocial,e.nomeFantasia,e.cnpj,e.regime].join(" ").toLowerCase().includes(q)});if(!a.length){var z=document.createElement("div");z.className="empty";z.textContent=state.empresas.length?"Nenhuma empresa encontrada.":"Nenhuma empresa cadastrada.";ul.appendChild(z)}a.forEach(function(e){var c=document.createElement("div");c.className="company-card"+(e.id===selectedEmpresaId?" selected":"");c.innerHTML="<strong></strong><small></small><span class='regime-badge'></span>";c.querySelector("strong").textContent=e.razaoSocial;c.querySelector("small").textContent=e.cnpj||"CNPJ não informado";c.querySelector(".regime-badge").textContent=e.regime||"Regime não informado";c.onclick=function(){selectedEmpresaId=e.id;renderEmpresas();showEmpresa(e.id)};ul.appendChild(c)});renderEmpresaFilter()}
+  function showEmpresa(id){var e=state.empresas.find(function(x){return x.id===id});if(!e)return;$("companyDetail").hidden=false;$("detailName").textContent=e.razaoSocial;$("detailMeta").textContent=(e.nomeFantasia||"")+(e.cnpj?" · "+e.cnpj:"")+(e.regime?" · "+e.regime:"");var d=[["Regime tributário",e.regime],["Inscrição estadual",e.ie],["Inscrição municipal",e.im],["Responsável",e.responsavel],["Telefone",e.telefone],["E-mail",e.email],["Nome fantasia",e.nomeFantasia],["Observações",e.observacoes]];$("detailCards").innerHTML="";d.forEach(function(x){var c=document.createElement("div");c.className="detail-card";c.innerHTML="<span></span><strong></strong>";c.querySelector("span").textContent=x[0];c.querySelector("strong").textContent=x[1]||"Não informado";$("detailCards").appendChild(c)})}
+  function clearEmpresaForm(){$("companyForm").reset();$("empresaId").value="";$("companyFormTitle").textContent="Nova empresa"}
+  function editEmpresa(id){var e=state.empresas.find(function(x){return x.id===id});if(!e)return;$("empresaId").value=e.id;["razaoSocial","nomeFantasia","cnpj","regime","ie","im","responsavel","telefone","email","observacoes"].forEach(function(k){$(k).value=e[k]||""});$("companyFormTitle").textContent="Editar empresa";$("companyFormPanel").scrollIntoView({behavior:"smooth"})}
+  function renderMonthlySummary(){var s=$("empresaFilter"),id=s?s.value:"all",mk=mkey(cur),dn=state.done[mk]||{},is=state.issued[mk]||{},a=state.items.filter(function(it){if(id==="all")return true;var e=empresaPorNome(it.cliente);return e&&e.id===id}),total=a.length,done=a.filter(function(it){return !!dn[it.id]}).length,issued=a.filter(function(it){return !!is[it.id]&&!dn[it.id]}).length,pending=total-done-issued,e=$("monthlySummary");if(!e)return;e.innerHTML="";[["Total",total,""],["Emitidos",issued,"warn"],["Pendentes",pending,pending?"danger":""],["Enviados",done,done===total&&total?"ok":""]].forEach(function(x){var p=document.createElement("span");p.className="summary-pill "+x[2];p.textContent=x[0]+": "+x[1];e.appendChild(p)})}
+  function renderRem(){
+      var names={};
+      state.items.concat(state.lembretes).forEach(function(x){names[x.cliente]=1});state.empresas.forEach(function(x){names[x.razaoSocial]=1;if(x.nomeFantasia)names[x.nomeFantasia]=1});
+      var dl=$("clientes");dl.innerHTML="";
+      Object.keys(names).sort().forEach(function(n){var o=document.createElement("option");o.value=n;dl.appendChild(o)});
+      var t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+      var list=state.lembretes.map(function(r){
+        var p=r.data.split("-"),d=new Date(+p[0],+p[1]-1,+p[2]);
+        return{r:r,d:d,diff:Math.round((d-t0)/86400000)};
+      }).sort(function(a,b){return (!!a.r.feito-!!b.r.feito)||(a.d-b.d)});
+      var pend=list.filter(function(x){return !x.r.feito}),
+          urg=pend.some(function(x){return x.diff<=3}),
+          card=$("cRem").parentNode;
+      $("cRem").textContent=pend.length;card.hidden=!pend.length;card.classList.toggle("alert",urg);
+      var ul=$("rem");ul.innerHTML="";
+      if(!list.length){
+        var e=document.createElement("div");e.className="empty";
+        e.textContent="Nenhum lembrete ainda. Use o formulário abaixo para criar o primeiro.";
+        ul.appendChild(e);return;
+      }
+      list.forEach(function(x){
+        var r=x.r,c="rem",t;
+        if(r.feito){c="rem r-done";t="Feito"}
+        else if(x.diff<0){c="rem r-late";t="Atrasado "+(-x.diff)+(x.diff===-1?" dia":" dias")}
+        else if(x.diff===0){c="rem r-soon";t="Hoje"}
+        else if(x.diff<=3){c="rem r-soon";t="Em "+x.diff+(x.diff===1?" dia":" dias")}
+        else t=x.d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+        var li=document.createElement("li");li.className=c;
+        var info=document.createElement("div");info.className="info";
+        var b=document.createElement("b");b.innerHTML=BELL;b.querySelector("span").textContent=r.cliente;
+        var sm=document.createElement("small");sm.textContent=r.texto+" · "+x.d.toLocaleDateString("pt-BR");
+        info.appendChild(b);info.appendChild(sm);
+        var tag=document.createElement("span");tag.className="tag";tag.textContent=t;
+        var del=document.createElement("button");del.className="del";del.textContent="✕";
+        del.setAttribute("aria-label","Remover lembrete de "+r.cliente);
+        del.onclick=function(){
+          if(!confirm("Remover este lembrete de "+r.cliente+"?"))return;
+          state.lembretes=state.lembretes.filter(function(y){return y.id!==r.id});save();renderRem();
+        };
+        var box=document.createElement("div");box.className="checks";
+        var l=document.createElement("label");l.className="chk c-send";
+        var cb=document.createElement("input");cb.type="checkbox";cb.checked=!!r.feito;
+        cb.setAttribute("aria-label","Marcar lembrete de "+r.cliente+" como feito");
+        cb.onchange=function(){r.feito=cb.checked;save();renderRem()};
+        l.appendChild(cb);l.appendChild(document.createTextNode("Feito"));box.appendChild(l);
+        li.appendChild(info);li.appendChild(tag);li.appendChild(del);li.appendChild(box);ul.appendChild(li);
+      });
+  }
+
+  function render(){
+    renderRem();
+    $("mlabel").textContent=cur.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});renderEmpresaFilter();
+    var mk=mkey(cur),dn=state.done[mk]||{},is=state.issued[mk]||{};
+    function setFlag(map,id,val){
+      state[map][mk]=state[map][mk]||{};
+      if(val)state[map][mk][id]=true;else delete state[map][mk][id];
+    }
+    var rows=state.items.map(function(it){
+      var s=!!dn[it.id],i=s||!!is[it.id];
+      var dia=resolveDate(ruleOf(it,"dia"),cur.getFullYear(),cur.getMonth()),em=resolveDate(ruleOf(it,"emissao"),cur.getFullYear(),cur.getMonth());
+      return{it:it,s:s,i:i,st:status(it,i,s),dia:dia,em:em,key:(i?dia:em).getTime()};
+    }).sort(function(a,b){return (a.s-b.s)||(a.key-b.key)||a.it.cliente.localeCompare(b.it.cliente)});
+    $("cEmit").textContent=rows.filter(function(r){return !r.i}).length;
+    $("cSend").textContent=rows.filter(function(r){return r.i&&!r.s}).length;
+    var lc=rows.filter(function(r){return r.st.c==="late"}).length;$("cLate").textContent=lc;$("cLate").parentNode.classList.toggle("alert",lc>0);
+    $("cDone").textContent=rows.filter(function(r){return r.s}).length;
+    var empSel=$("empresaFilter"),empId=empSel?empSel.value:"all";if(empId!=="all")rows=rows.filter(function(r){var e=empresaPorNome(r.it.cliente);return e&&e.id===empId});renderMonthlySummary();var byTipo=rows.filter(function(r){return tipoFilter==="all"||(r.it.tipo||"imposto")===tipoFilter});
+    var shown=filter==="pend"?byTipo.filter(function(r){return !r.s}):byTipo;
+    var ul=$("list");ul.innerHTML="";
+    if(!shown.length){
+      var e=document.createElement("div");e.className="empty";
+      e.textContent=!state.items.length?"Nada cadastrado ainda. Use o formulário abaixo para adicionar o primeiro item.":(!byTipo.length?"Nenhum item deste tipo cadastrado.":(filter==="pend"?"Tudo enviado neste mês.":"Nada neste mês."));
+      ul.appendChild(e);return;
+    }
+    function chk(label,checked,aria,fn){
+      var l=document.createElement("label");l.className="chk "+(label==="Emitido"?"c-emit":"c-send");
+      var c=document.createElement("input");c.type="checkbox";c.checked=checked;c.setAttribute("aria-label",aria);
+      c.onchange=function(){fn(c.checked);save();render();};
+      l.appendChild(c);
+      if(label==="Emitido"){var w=document.createElement("span");w.innerHTML='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6"/><path d="M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v7H7z"/></svg>';l.appendChild(w.firstChild);}
+      if(label==="Enviado"){var w2=document.createElement("span");w2.innerHTML='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>';l.appendChild(w2.firstChild);}
+      l.appendChild(document.createTextNode(label));return l;
+    }
+    shown.forEach(function(r){
+      var li=document.createElement("li");li.className=r.st.c;
+      var info=document.createElement("div");info.className="info";
+      var b=document.createElement("b");
+      b.innerHTML='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M14 10h5a1 1 0 0 1 1 1v10"/><path d="M2 21h20"/><path d="M8 8h2M8 12h2M8 16h2M17 14h1M17 18h1"/></svg><span></span>';
+      b.querySelector("span").textContent=r.it.cliente;
+      var sm=document.createElement("small");
+      var tp=tipoOf(r.it);
+      sm.innerHTML='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+tp.ico+'</svg><span></span>';
+      sm.querySelector("span").textContent=tp.n+" · "+r.it.imposto+" · emitir "+fmtDia(r.em)+" · vence "+fmtDia(r.dia);
+      sm.title="Emissão: "+describe(ruleOf(r.it,"emissao"))+" · Vencimento: "+describe(ruleOf(r.it,"dia"));
+      info.appendChild(b);info.appendChild(sm);
+      var tag=document.createElement("span");tag.className="tag";tag.textContent=r.st.t;
+      var del=document.createElement("button");del.className="del";del.textContent="✕";
+      del.setAttribute("aria-label","Remover "+r.it.imposto+" de "+r.it.cliente);
+      del.onclick=function(){
+        if(!confirm("Remover "+r.it.imposto+" de "+r.it.cliente+" de todos os meses?"))return;
+        state.items=state.items.filter(function(x){return x.id!==r.it.id});save();render();
+      };
+      var box=document.createElement("div");box.className="checks";
+      var who=r.it.imposto+" de "+r.it.cliente;
+      box.appendChild(chk("Emitido",r.i,"Marcar "+who+" como emitido",function(v){
+        setFlag("issued",r.it.id,v);if(!v)setFlag("done",r.it.id,false);
+      }));
+      box.appendChild(chk("Enviado",r.s,"Marcar "+who+" como enviado ao cliente",function(v){
+        setFlag("done",r.it.id,v);if(v)setFlag("issued",r.it.id,true);
+      }));
+      var eb=document.createElement("button");eb.type="button";eb.className="edit";eb.textContent="Editar datas";
+      eb.setAttribute("aria-label","Editar datas de "+who);
+      eb.onclick=function(){
+        var open=li.querySelector(".editor");
+        if(open){open.remove();return}
+        var ed=document.createElement("div");ed.className="editor";
+        var fe=mkDateField("Dia para emitir",ruleOf(r.it,"emissao"),false),fv=mkDateField(tp.venc,ruleOf(r.it,"dia"),true);
+        var acts=document.createElement("div");acts.className="acts";
+        var sv=document.createElement("button");sv.type="button";sv.className="save";sv.textContent="Salvar datas";
+        var cn=document.createElement("button");cn.type="button";cn.textContent="Cancelar";
+        cn.onclick=function(){ed.remove()};
+        sv.onclick=function(){
+          var re=fe.get(),rv=fv.get();
+          if(!re){fe.err();return}
+          if(!rv){fv.err();return}
+          r.it.remissao=re;r.it.rdia=rv;r.it.emissao=re.n||1;r.it.dia=rv.n||1;
+          save();render();
+        };
+        acts.appendChild(sv);acts.appendChild(cn);
+        ed.appendChild(fe.el);ed.appendChild(fv.el);ed.appendChild(acts);li.appendChild(ed);
+      };
+      box.appendChild(eb);
+      li.appendChild(info);li.appendChild(tag);li.appendChild(del);li.appendChild(box);ul.appendChild(li);
+    });
+  }
+
+  window.render = render;
+  window.renderEmpresas = renderEmpresas;
+
+  $("prev").onclick=function(){cur=new Date(cur.getFullYear(),cur.getMonth()-1,1);render()};
+  $("next").onclick=function(){cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);render()};
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.onclick=function(){
+      filter=t.dataset.f;
+      document.querySelectorAll(".tab").forEach(function(x){x.setAttribute("aria-pressed",x===t)});
+      render();
+    };
+  });
+  function rows(){return document.querySelectorAll("#taxes .trow")}
+  function refreshRm(){
+    var many=rows().length>1;
+    document.querySelectorAll("#taxes .rm").forEach(function(x){x.hidden=!many});
+  }
+  function addRow(){
+    var d=document.createElement("div");d.className="trow";
+    d.innerHTML='<label>Documento<select class="t-doc" required>'+DOC_OPTS+'</select></label>'+
+      '<div class="custom" hidden><label>Tipo<select class="t-tipo"><option value="imposto">Imposto</option><option value="declaracao">Declaração</option><option value="parcelamento">Parcelamento</option></select></label>'+
+      '<label>Nome do documento<input type="text" class="t-imp" maxlength="60" placeholder="Ex.: nome da obrigação"></label></div>'+
+      '<div class="dfields"></div>'+
+      '<button type="button" class="rm">Remover este item</button>';
+    var doc=d.querySelector(".t-doc"),tipo=d.querySelector(".t-tipo"),nome=d.querySelector(".t-imp"),box=d.querySelector(".custom");
+    var fe=mkDateField("Dia para emitir",null,false),fv=mkDateField(TIPOS.imposto.venc,null,true),df=d.querySelector(".dfields");
+    df.appendChild(fe.el);df.appendChild(fv.el);d._em=fe;d._dia=fv;
+    function aplicaTipo(){d.querySelector(".l-venc").textContent=TIPOS[tipo.value].venc}
+    doc.onchange=function(){
+      if(doc.value==="__outro"){
+        box.hidden=false;nome.required=true;nome.value="";nome.focus();
+      }else{
+        box.hidden=true;nome.required=false;
+        if(doc.value){var i=doc.value.indexOf("|");tipo.value=doc.value.slice(0,i);nome.value=doc.value.slice(i+1)}
+        else nome.value="";
+      }
+      aplicaTipo();
+    };
+    tipo.onchange=aplicaTipo;
+    d.querySelector(".rm").onclick=function(){d.remove();refreshRm()};
+    $("taxes").appendChild(d);refreshRm();
+    return d;
+  }
+  $("more").onclick=function(){addRow().querySelector(".t-doc").focus()};
+  addRow();
+  document.querySelectorAll(".chip").forEach(function(t){
+    t.onclick=function(){
+      tipoFilter=t.dataset.t;
+      document.querySelectorAll(".chip").forEach(function(x){x.setAttribute("aria-pressed",x===t)});
+      render();
+    };
+  });
+  $("form").onsubmit=function(ev){
+    ev.preventDefault();
+    var cliente=$("cliente").value.trim(),novos=[],ok=true;
+    rows().forEach(function(r){
+      var re=r._em.get(),rv=r._dia.get();
+      if(!re||!rv){ok=false;return}
+      novos.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+        cliente:cliente,tipo:r.querySelector(".t-tipo").value,imposto:r.querySelector(".t-imp").value.trim(),dia:rv.n||1,emissao:re.n||1,rdia:rv,remissao:re});
+    });
+    if(!ok||!novos.length)return;
+    state.items=state.items.concat(novos);save();
+    $("cliente").value="";$("taxes").innerHTML="";addRow();
+    $("cliente").focus();render();
+  };
+  $("remform").onsubmit=function(ev){
+    ev.preventDefault();
+    var data=$("rdata").value;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(data))return;
+    state.lembretes.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      cliente:$("rcliente").value.trim(),texto:$("rtexto").value.trim(),data:data,feito:false});
+    save();$("rtexto").value="";$("rdata").value="";$("rtexto").focus();renderRem();
+  };
+  
+  document.querySelectorAll(".navtab").forEach(function(t){t.onclick=function(){document.querySelectorAll(".navtab").forEach(function(x){x.classList.toggle("active",x===t)});var v=t.dataset.view;$("view-dashboard").hidden=v!=="dashboard";$("view-empresas").hidden=v!=="empresas";if(v==="empresas")renderEmpresas()}});
+  $("novaEmpresa").onclick=function(){clearEmpresaForm();$("companyFormPanel").scrollIntoView({behavior:"smooth"})};
+  $("cancelarEmpresa").onclick=clearEmpresaForm;$("editarEmpresa").onclick=function(){if(selectedEmpresaId)editEmpresa(selectedEmpresaId)};$("buscaEmpresa").oninput=renderEmpresas;$("empresaFilter").onchange=function(){render()};
+  $("companyForm").onsubmit=function(ev){ev.preventDefault();var id=$("empresaId").value||Date.now().toString(36)+Math.random().toString(36).slice(2,7),e={id:id,razaoSocial:$("razaoSocial").value.trim(),nomeFantasia:$("nomeFantasia").value.trim(),cnpj:$("cnpj").value.trim(),regime:$("regime").value,ie:$("ie").value.trim(),im:$("im").value.trim(),responsavel:$("responsavel").value.trim(),telefone:$("telefone").value.trim(),email:$("email").value.trim(),observacoes:$("observacoes").value.trim()};if(!e.razaoSocial)return;var i=state.empresas.findIndex(function(x){return x.id===id});if(i>=0)state.empresas[i]=e;else state.empresas.push(e);selectedEmpresaId=id;save();renderEmpresas();showEmpresa(id);clearEmpresaForm();render()};
+
+  render();
+  renderEmpresas();
+})();
+
+/* ===== FICHA MENSAL DE OBRIGAÇÕES ===== */
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[s]));
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function currentMonth(){ return new Date().toISOString().slice(0,7); }
+
+function populateObligationCompanies(){
+  const sels = [document.getElementById("obCompanyFilter"), document.getElementById("obCompany")];
+  sels.forEach(sel => {
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = "";
+    if (sel.id === "obCompanyFilter"){
+      sel.innerHTML = '<option value="">Todas as empresas</option>';
+    }
+    (window.appState.empresas || []).forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.id;
+      opt.textContent = e.razaoSocial || e.nomeFantasia || e.cnpj || "Empresa sem nome";
+      sel.appendChild(opt);
+    });
+    if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  });
+}
+
+function openObligationModal(id){
+  populateObligationCompanies();
+  document.getElementById("obligationModal").classList.add("open");
+  const item = (window.appState.obrigacoes || []).find(x => x.id === id);
+  document.getElementById("obModalTitle").textContent = item ? "Editar obrigação" : "Nova obrigação";
+  document.getElementById("obId").value = item?.id || "";
+  document.getElementById("obCompany").value = item?.empresaId || document.getElementById("obCompanyFilter").value || (window.appState.empresas?.[0]?.id || "");
+  document.getElementById("obName").value = item?.nome || "";
+  document.getElementById("obCompetence").value = item?.competencia || document.getElementById("obMonthFilter").value || currentMonth();
+  document.getElementById("obDue").value = item?.vencimento || "";
+  document.getElementById("obIssuedDate").value = item?.emissao || "";
+  document.getElementById("obSentDate").value = item?.envio || "";
+  document.getElementById("obStatus").value = item?.situacao || "Pendente";
+  document.getElementById("obNotes").value = item?.observacao || "";
+}
+function closeObligationModal(){ document.getElementById("obligationModal").classList.remove("open"); }
+
+function saveObligation(ev){
+  ev.preventDefault();
+  const id = document.getElementById("obId").value || ("ob_" + Date.now());
+  const item = {
+    id,
+    empresaId: document.getElementById("obCompany").value,
+    nome: document.getElementById("obName").value.trim(),
+    competencia: document.getElementById("obCompetence").value,
+    vencimento: document.getElementById("obDue").value,
+    emissao: document.getElementById("obIssuedDate").value,
+    envio: document.getElementById("obSentDate").value,
+    situacao: document.getElementById("obStatus").value,
+    observacao: document.getElementById("obNotes").value.trim()
+  };
+  const idx = window.appState.obrigacoes.findIndex(x => x.id === id);
+  if (idx >= 0) window.appState.obrigacoes[idx] = item;
+  else window.appState.obrigacoes.push(item);
+  window.appSave();
+  closeObligationModal();
+  populateObligationCompanies();
+  renderObligations();
+}
+
+function deleteObligation(id){
+  if (!confirm("Excluir esta obrigação?")) return;
+  window.appState.obrigacoes = window.appState.obrigacoes.filter(x => x.id !== id);
+  window.appSave();
+  renderObligations();
+}
+
+function companyName(id){
+  const e = (window.appState.empresas || []).find(x => x.id === id);
+  return e ? (e.razaoSocial || e.nomeFantasia || e.cnpj || "Empresa") : "Empresa não cadastrada";
+}
+function formatDate(v){
+  if (!v) return "—";
+  const [y,m,d] = v.split("-");
+  return d && m && y ? `${d}/${m}/${y}` : v;
+}
+function formatMonth(v){
+  if (!v) return "—";
+  const [y,m] = v.split("-");
+  return `${m}/${y}`;
+}
+function statusClass(s){
+  return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-");
+}
+function renderObligations(){
+  populateObligationCompanies();
+  const company = document.getElementById("obCompanyFilter")?.value || "";
+  const month = document.getElementById("obMonthFilter")?.value || "";
+  const status = document.getElementById("obStatusFilter")?.value || "";
+  let list = [...(window.appState.obrigacoes || [])];
+  if (company) list = list.filter(x => x.empresaId === company);
+  if (month) list = list.filter(x => x.competencia === month);
+  if (status) list = list.filter(x => x.situacao === status);
+  list.sort((a,b) => (a.vencimento || "9999-99-99").localeCompare(b.vencimento || "9999-99-99"));
+
+  const all = [...(window.appState.obrigacoes || [])].filter(x => (!company || x.empresaId === company) && (!month || x.competencia === month));
+  const counts = {
+    total: all.length,
+    pending: all.filter(x=>x.situacao==="Pendente").length,
+    issued: all.filter(x=>x.situacao==="Emitido").length,
+    sent: all.filter(x=>x.situacao==="Enviado").length,
+    late: all.filter(x=>x.situacao==="Vencido").length
+  };
+  document.getElementById("obTotal").textContent = counts.total;
+  document.getElementById("obPending").textContent = counts.pending;
+  document.getElementById("obIssued").textContent = counts.issued;
+  document.getElementById("obSent").textContent = counts.sent;
+  document.getElementById("obLate").textContent = counts.late;
+
+  const header = document.getElementById("companyMonthlyHeader");
+  if (company){
+    const e = window.appState.empresas.find(x=>x.id===company);
+    header.innerHTML = e ? `<div><strong>${esc(e.razaoSocial || e.nomeFantasia)}</strong><span>${esc(e.regime || "Regime não informado")}</span></div><div><b>${all.length}</b> obrigações no período</div>` : "";
+  } else header.innerHTML = `<div><strong>Visão geral</strong><span>Todas as empresas</span></div><div><b>${all.length}</b> obrigações no período</div>`;
+
+  const tbody = document.getElementById("obligationTableBody");
+  if (!list.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Nenhuma obrigação encontrada para os filtros selecionados.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(x => `
+    <tr>
+      <td><strong>${esc(x.nome)}</strong><small>${esc(companyName(x.empresaId))}</small></td>
+      <td>${esc(formatMonth(x.competencia))}</td>
+      <td>${esc(formatDate(x.vencimento))}</td>
+      <td>${esc(formatDate(x.emissao))}</td>
+      <td>${esc(formatDate(x.envio))}</td>
+      <td><span class="status-badge ${statusClass(x.situacao)}">${esc(x.situacao)}</span></td>
+      <td class="notes-cell">${esc(x.observacao || "—")}</td>
+      <td class="actions-cell"><button class="mini-btn" onclick="openObligationModal('${x.id}')">Editar</button><button class="mini-btn danger" onclick="deleteObligation('${x.id}')">Excluir</button></td>
+    </tr>`).join("");
+}
+
+window.renderObligations = renderObligations;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const month = document.getElementById("obMonthFilter");
+  if (month && !month.value) month.value = currentMonth();
+  populateObligationCompanies();
+  renderObligations();
+});
+</script>
+</body>
+</html>
